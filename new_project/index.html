@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wdehuazhou</title>
+    <link rel="stylesheet" href="./assets/css/style.css">
+    <!-- 引入配置文件 -->
+    <script type="module">
+        import amapKey from './assets/script/config.js';
+        const script = document.createElement('script');
+        script.src = `https://webapi.amap.com/maps?v=2.0&key=${amapKey}`;
+        document.head.appendChild(script);
+    </script>
+</head>
+
+<body>
+    <!-- 顶部导航栏 -->
+    <nav class="top-navbar">
+        <div class="site-name">粥小站</div>
+        <div class="contact-me">联系我</div>
+    </nav>
+
+    <!-- 时间天气模块 -->
+    <div class="col times">
+        <div class="time cards" id="upWeather">
+            <div class="timeshow" id="time">加载中...</div>
+            <div class="weather" id="weather">加载中...</div>
+        </div>
+    </div>
+
+    <div class="swithDivContain">
+        <div class="longCanvas">
+            <div class="introduction">
+                <video src="./assets/music/your_music.mp3" autoplay hidden></video>
+                <div class="mask">
+                    <div class="introductionText"><span>自定义的文字内容</span></div>
+                    <span class="introductionTitle">————《自定义标题》</span>
+                </div>
+                <div class="seeMore">🤤</div>
+            </div>
+
+            <div class="showMe">
+                <div class="showMeContent">
+                    <div class="headImg"></div>
+                    <p>你好，这是新网站</p>
+                    <p>欢迎来到这里</p>
+                    <p>可以添加你的链接 <a target="_blank" href="https://example.com">点这里</a></p>
+                    <div class="thankList">感谢一些帮助过你的人：
+                        <a target="_blank" href="https://example.com">示例链接1</a>
+                        <a target="_blank" href="https://example.com">示例链接2</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="thirdpage">
+                <p>用于测试滚动计算逻辑</p>
+                <p>后续可添加的功能：右侧显示滚动定位点</p>
+                <p>待办：添加新功能</p>
+            </div>
+
+            <!-- 第四页 -->
+            <div class="fourthpage">
+                <p>这是新增的滚动页面</p>
+            </div>
+
+            <!-- 第五页 -->
+            <div class="fifthpage">
+                <p>这是新增的滚动页面</p>
+            </div>
+        </div>
+    </div>
+    <script src="./assets/script/main.js"></script>
+    <script type="module">
+        // 实时更新时间
+        function updateTime() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const weekday = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'][now.getDay()];
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            const timeString = `${year} 年 ${month} 月 ${day} 日 <span class="weekday">${weekday}</span><br><span class="time-text">${hours}:${minutes}:${seconds}</span>`;
+            document.getElementById('time').innerHTML = timeString;
+        }
+
+        // 获取天气信息
+        async function getWeather() {
+            try {
+                const amapKey = await import('./assets/script/config.js');
+                await new Promise((resolve) => {
+                    AMap.plugin('AMap.Weather', function () {
+                        var weather = new AMap.Weather();
+                        // 查询实时天气，这里以广州为例，你可以修改为其他城市
+                        weather.getLive('广州', function (err, data) {
+                            if (!err) {
+                                const weatherString = `<span id="city_text">${data.city}</span>&nbsp;
+                                               <span id="wea_text">${data.weather}</span>&nbsp;
+                                               <span id="tem_text">${data.temperature}°C&nbsp;</span>
+                                               <span id="win_text">${data.windDirection}</span>
+                                               <span id="win_speed">${data.windPower}级</span>`;
+                                document.getElementById('weather').innerHTML = weatherString;
+                            } else {
+                                let errorMessage = '获取天气信息失败';
+                                if (err.info) {
+                                    errorMessage += `: ${err.info}`;
+                                }
+                                console.error(errorMessage, err);
+                                document.getElementById('weather').innerHTML = errorMessage;
+                            }
+                            resolve();
+                        });
+                    });
+                });
+            } catch (error) {
+                console.error('加载配置文件或获取天气信息时出错:', error);
+                document.getElementById('weather').innerHTML = '加载配置文件或获取天气信息时出错';
+            }
+        }
+        // 页面加载完成后，每秒更新时间并获取天气信息
+        window.onload = function () {
+            updateTime();
+            setInterval(updateTime, 1000);
+            getWeather();
+        };
+    </script>
+</body>
+
+</html>
